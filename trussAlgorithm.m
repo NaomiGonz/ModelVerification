@@ -1,8 +1,16 @@
 % Change loaded file name. Expecting matrices: C, L, Sx, Sy, X, and Y
 % values must be in inches or ounces
 % make sure to 'clear' after each run to avoid errors
-load('TrussDesign1_MaryJoeBob_A1.mat');
+%load('TrussPracticeDesign_NaomiLakshmiIsha_A1.mat');
+load('TrussPracticeDesign_NaomiLakshmiIsha_A1.mat','C','Sx','Sy','X','Y','L');
 
+
+%unit = input('is this is N/m (y/n)','s');
+%if unit == 'y'
+ %   L = 0.278*L;
+  %  X = 39.37*X;
+   % Y = 39.37*Y;
+%end
 
 %finds the number of joints and members in the truss
 [j,m] = size(C);
@@ -12,8 +20,11 @@ A = zeros(2*j,m+3);
 A(1:j,m+1:m+3) = Sx;
 A(j+1:2*j,m+1:m+3) = Sy;
 
-%will keep track of total length of members
+%will keep track of total length of all members
 len = 0;
+
+%use to find the critial value of all the members
+Pcrit = zeros(m,1);
 
 %populates the rest of matrix A
 for i = 1:m
@@ -40,22 +51,44 @@ for i = 1:m
 
     A(hold(1)+j,i) = (Y(hold(2))-Y(hold(1)))/r;
     A(hold(2)+j,i) = (Y(hold(1))-Y(hold(2)))/r;
-end
 
+    Pcrit(i,1) = -4338*r^-2.125;
+end
+%disp(Pcrit);
 %finds the tensions of each member 
 T = (A^(-1))*L;
 
-%calculates the cost
-cost = j*10 + len*1;
-
-%prints in desired format 
-fprintf('\\%% EK301, Section A3, Group 4: Naomi G., Lakshmi R., Isha M., 4/1/2023.\n');
+%finds the total load on the structure
+%%%%%%%%%%%ASK ABOUT IF WE NEED TO CONSIDER LOAD IN MORE THEN ONE JOINT HOW
+%%%%%%%%%%%THAT EFFECTS THE
 load = 0;
 for i = 1:size(L,1)
     if (L(i,1) ~= 0)
         load = load + L(i,1);
     end
 end
+
+Wfail = zeros(m,1);
+index = 0;
+ratio = 0;
+for i = 1:m
+    Wfail(i) = T(i)/Pcrit(i);
+    if (Wfail(i)>ratio)
+        ratio = Wfail;
+        index = i;
+        if (ratio >= 1)
+            fprintf('ERROR BRIDGE WILL FAIL AT MEMBER %d\n', index);
+        end
+    end
+end
+
+%disp(Wfail);
+fprintf('member %d will fail first. Wfail = %f\n\n',index,ratio(index));
+%calculates the cost
+cost = j*10 + len*1;
+
+%prints in desired format 
+fprintf('\\%% EK301, Section A3, Group 4: Naomi G., Lakshmi R., Isha M., 4/1/2023.\n');
 fprintf('Load: %d oz\n',load);
 fprintf('Member forces in oz\n');
 for i = 1:m
