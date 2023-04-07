@@ -4,6 +4,7 @@
 %load('TrussPracticeDesign_NaomiLakshmiIsha_A1.mat');
 load('TrussPracticeDesign_NaomiLakshmiIsha_A1.mat','C','Sx','Sy','X','Y','L');
 
+disp(C);
 
 %unit = input('is this is N/m (y/n)','s');
 %if unit == 'y'
@@ -56,6 +57,7 @@ for i = 1:m
 end
 %disp(Pcrit);
 %finds the tensions of each member 
+disp(A);
 T = (A^(-1))*L;
 
 %finds the total load on the structure
@@ -83,7 +85,7 @@ for i = 1:m
 end
 
 %disp(Wfail);
-fprintf('member %d will fail first. Wfail = %f\n\n',index,ratio(index));
+fprintf('member %d is the critical member. CritRatio = %f\n\n',index,ratio(index));
 %calculates the cost
 cost = j*10 + len*1;
 
